@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Customer Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            height: 100vh;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .navbar-right a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .navbar-right a:hover {
+            background-color: #555;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            margin-top: 50px;
+            height: calc(100vh - 50px);
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar li {
+            margin: 0;
+        }
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            font-size: 15px;
+        }
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+        .sidebar a.active {
+            background-color: #3498db;
+            border-left: 4px solid #2980b9;
+            padding-left: 16px;
+        }
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+        }
+        .transactions-header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .transactions-header h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-section label {
+            font-weight: 500;
+            color: #333;
+        }
+        .filter-section select,
+        .filter-section button {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .filter-section select {
+            min-width: 150px;
+        }
+        .filter-section select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        .filter-section button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .filter-section button:hover {
+            background-color: #2980b9;
+        }
+        .transactions-table {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background-color: #34495e;
+            color: white;
+        }
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #2c3e50;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .total-row {
+            background-color: #ecf0f1;
+            font-weight: 600;
+            color: #333;
+        }
+        .total-row td:last-child {
+            color: #27ae60;
+            font-size: 16px;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 16px;
+        }
+        .amount {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        .date {
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="navbar-brand">Customer Automation</div>
+        <div class="navbar-right">
+            <span>Welcome, <strong th:text="${username}"></strong></span>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <ul>
+                <li><a href="/home">Dashboard</a></li>
+                <li><a href="/transactions" class="active">Transactions</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="transactions-header">
+                <h1>Transactions</h1>
+                <div class="filter-section">
+                    <label for="monthSelect">Select Month:</label>
+                    <form method="get" action="/transactions" style="display: flex; gap: 10px; align-items: center;">
+                        <select id="monthSelect" name="month" required>
+                            <option value="">-- Choose a Month --</option>
+                            <option value="January" th:selected="${selectedMonth == 'January'}">January</option>
+                            <option value="February" th:selected="${selectedMonth == 'February'}">February</option>
+                            <option value="March" th:selected="${selectedMonth == 'March'}">March</option>
+                            <option value="April" th:selected="${selectedMonth == 'April'}">April</option>
+                            <option value="May" th:selected="${selectedMonth == 'May'}">May</option>
+                            <option value="June" th:selected="${selectedMonth == 'June'}">June</option>
+                            <option value="July" th:selected="${selectedMonth == 'July'}">July</option>
+                            <option value="August" th:selected="${selectedMonth == 'August'}">August</option>
+                            <option value="September" th:selected="${selectedMonth == 'September'}">September</option>
+                            <option value="October" th:selected="${selectedMonth == 'October'}">October</option>
+                            <option value="November" th:selected="${selectedMonth == 'November'}">November</option>
+                            <option value="December" th:selected="${selectedMonth == 'December'}">December</option>
+                        </select>
+                        <button type="submit">Load Transactions</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="transactions-table" th:if="${transactions.size() > 0}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Month</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="transaction : ${transactions}">
+                            <td th:text="${transaction.id}"></td>
+                            <td th:text="${transaction.description}"></td>
+                            <td class="amount">
+                                $<span th:text="${#numbers.formatDecimal(transaction.amount, 1, 2)}"></span>
+                            </td>
+                            <td class="date" th:text="${transaction.date}"></td>
+                            <td th:text="${transaction.month}"></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td colspan="4" style="text-align: right;">TOTAL:</td>
+                            <td>
+                                $<span th:text="${#numbers.formatDecimal(total, 1, 2)}"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- No Data Message -->
+            <div th:if="${transactions.size() == 0}" class="transactions-table">
+                <div class="no-data">
+                    <p th:if="${selectedMonth == null or selectedMonth == ''}">
+                        Please select a month to view transactions.
+                    </p>
+                    <p th:if="${selectedMonth != null and selectedMonth != ''}">
+                        No transactions found for <strong th:text="${selectedMonth}"></strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

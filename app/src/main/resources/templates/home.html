@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Customer Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            height: 100vh;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .navbar-right a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .navbar-right a:hover {
+            background-color: #555;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            margin-top: 50px;
+            height: calc(100vh - 50px);
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar li {
+            margin: 0;
+        }
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            font-size: 15px;
+        }
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+        .sidebar a.active {
+            background-color: #3498db;
+            border-left: 4px solid #2980b9;
+            padding-left: 16px;
+        }
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+        }
+        .dashboard-header {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .dashboard-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .card-content {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="navbar-brand">Customer Automation</div>
+        <div class="navbar-right">
+            <span>Welcome, <strong th:text="${username}"></strong></span>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <ul>
+                <li><a href="/home" class="active">Dashboard</a></li>
+                <li><a href="/transactions">Transactions</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="dashboard-header">
+                <h1>Welcome to Dashboard</h1>
+                <p>Manage your transactions and business operations efficiently.</p>
+            </div>
+
+            <div class="card">
+                <h2>Quick Overview</h2>
+                <div class="card-content">
+                    <p>This is your main dashboard. Use the navigation panel on the left to:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>View and manage <strong>Transactions</strong></li>
+                        <li>Update your <strong>Profile</strong> information</li>
+                        <li>Access dashboard analytics</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Getting Started</h2>
+                <div class="card-content">
+                    <p>Start by navigating to the <strong>Transactions</strong> tab to view all transactions by month. You can filter transactions, view totals, and manage your financial data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
