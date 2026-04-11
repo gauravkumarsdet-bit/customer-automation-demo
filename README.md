@@ -26,6 +26,9 @@ customer-automation-demo/
 ├── Jenkinsfile                   # CI/CD Pipeline
 └── README.md
 ```
+## /automation - BDD framework is added.
+- UI + API + DB automation
+- Jenkins ready
 
 ## Tech Stack
 
