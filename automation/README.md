@@ -37,6 +37,10 @@ automation/
 └── target/                                  # Build output
 ```
 
+## /automation  - BDD framework is added.
+- UI + API + DB automation
+- Jenkins ready
+
 ## 🛠 Technologies
 
 | Component | Version |
