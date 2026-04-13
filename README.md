@@ -2,7 +2,7 @@
 
 A Spring Boot application for managing transactions with login authentication and dynamic month-based filtering.
 
-## This line is from main branch
+## This line is from feature branch
 
 ## Project Structure
 
