@@ -4,13 +4,15 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/gauravkumarsdet-bit/customer-automation-demo.git'
+                checkout scm
             }
         }
 
-        stage('Build and Test') {
+        stage('Run Automation Tests') {
             steps {
-                bat '"C:\\Users\\sohinee\\apache-maven-3.9.10-bin\\apache-maven-3.9.10\\bin\\mvn.cmd" clean test'
+                dir('automation') {
+                    bat '"C:\\Users\\sohinee\\apache-maven-3.9.10-bin\\apache-maven-3.9.10\\bin\\mvn.cmd" clean test'
+                }
             }
         }
     }
