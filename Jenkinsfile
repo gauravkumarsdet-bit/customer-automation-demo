@@ -10,7 +10,7 @@ pipeline {
 
         stage('Build and Test') {
             steps {
-                bat 'mvn clean test'
+                bat '"C:\\Users\\sohinee\\apache-maven-3.9.10-bin\\apache-maven-3.9.10\\mvn.cmd" clean test'
             }
         }
     }
