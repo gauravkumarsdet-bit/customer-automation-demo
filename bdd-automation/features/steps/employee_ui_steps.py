@@ -16,3 +16,7 @@ def step_click_employee_tab(context):
 @then("I should see employee table")
 def step_verify_employee_table(context):
     assert context.employee_page.is_employee_table_visible(), "Employee table is not visible"
+
+@then("city values in employee table should match with database using emp id")
+def step_verify_city_values_with_database(context):
+    context.employee_page.verify_city_values_with_database()

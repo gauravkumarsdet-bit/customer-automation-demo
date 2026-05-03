@@ -6,7 +6,7 @@ EMPLOYEE_API_URL = f"{BASE_URL}/api/employees"
 DB_CONFIG = {
     "host": "127.0.0.1",
     "port": 3307,
-    "user": "admin",
+    "user": "root",
     "password": "admin123",
-    "database": "employees"
+    "database": "customer_automation"
 }
