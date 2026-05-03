@@ -72,7 +72,7 @@ pipeline {
                             exit 0
                         }
                     } catch {
-                        Write-Host "Attempt $i: App not ready yet..."
+                        Write-Host "Attempt ${i}: App not ready yet..."
                         Start-Sleep -Seconds 5
                     }
                 }
