@@ -5,6 +5,10 @@ pipeline {
         APP_PORT = '8080'
         APP_DIR = 'app'
         AUTOMATION_DIR = 'bdd-automation'
+        JAVA_EXE = 'C:\\Program Files\\Java\\jdk-24\\bin\\java.exe'
+        MAVEN_CMD = 'C:\\Users\\sohinee\\apache-maven-3.9.10-bin\\apache-maven-3.9.10\\bin\\mvn.cmd'
+        PYTHON_EXE = 'C:\\Users\\gaura\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
+        ALLURE_CMD = 'C:\\Users\\gaura\\AppData\\Roaming\\npm\\allure.cmd'
     }
 
     stages {
@@ -18,10 +22,10 @@ pipeline {
         stage('Verify Tools') {
             steps {
                 bat '''
-                java -version
-                mvn -version
-                python --version
-                allure --version
+                    "%JAVA_EXE%" -version
+                    "%MAVEN_CMD%" -version
+                    "%PYTHON_EXE%" --version
+                    "%ALLURE_CMD%" --version
                 '''
             }
         }
@@ -34,7 +38,7 @@ pipeline {
                 $appPath = Join-Path $env:WORKSPACE $env:APP_DIR
                 $pidFile = Join-Path $env:WORKSPACE "springboot-app.pid"
 
-                $process = Start-Process -FilePath "mvn" `
+                $process = Start-Process -FilePath "$env:MAVEN_CMD" `
                     -ArgumentList "spring-boot:run" `
                     -WorkingDirectory $appPath `
                     -PassThru `
@@ -76,14 +80,14 @@ pipeline {
 
         stage('Setup Python Environment') {
             steps {
-                powershell '''
+                 powershell '''
                 cd $env:AUTOMATION_DIR
 
                 if (Test-Path "venv") {
                     Remove-Item -Recurse -Force "venv"
                 }
 
-                python -m venv venv
+                & $env:PYTHON_EXE -m venv venv
                 .\\venv\\Scripts\\python.exe -m pip install --upgrade pip
                 .\\venv\\Scripts\\pip.exe install -r requirements.txt
                 '''
