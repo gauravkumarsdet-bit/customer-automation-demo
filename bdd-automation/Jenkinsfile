@@ -36,17 +36,22 @@ pipeline {
                 Write-Host "Starting Spring Boot app..."
 
                 $appPath = Join-Path $env:WORKSPACE $env:APP_DIR
+                $logFile = Join-Path $env:WORKSPACE "springboot-app.log"
                 $pidFile = Join-Path $env:WORKSPACE "springboot-app.pid"
 
-                $process = Start-Process -FilePath "$env:MAVEN_CMD" `
-                    -ArgumentList "spring-boot:run" `
-                    -WorkingDirectory $appPath `
-                    -PassThru `
-                    -WindowStyle Hidden
+                if (Test-Path $logFile) {
+                    Remove-Item $logFile -Force
+                }
 
-                $process.Id | Out-File $pidFile
+                $job = Start-Job -ScriptBlock {
+                    param($mavenCmd, $appPath, $logFile)
+                    Set-Location $appPath
+                    & $mavenCmd spring-boot:run *> $logFile
+                } -ArgumentList $env:MAVEN_CMD, $appPath, $logFile
 
-                Write-Host "Spring Boot PID: $($process.Id)"
+                $job.Id | Out-File $pidFile
+
+                Write-Host "Spring Boot background job ID: $($job.Id)"
                 Start-Sleep -Seconds 30
                 '''
             }
@@ -119,14 +124,22 @@ pipeline {
             $pidFile = Join-Path $env:WORKSPACE "springboot-app.pid"
 
             if (Test-Path $pidFile) {
-                $appPid = Get-Content $pidFile
-                Stop-Process -Id $appPid -Force -ErrorAction SilentlyContinue
+                $jobId = Get-Content $pidFile
+                Stop-Job -Id $jobId -ErrorAction SilentlyContinue
+                Remove-Job -Id $jobId -Force -ErrorAction SilentlyContinue
                 Remove-Item $pidFile -Force
+            }
+
+            $appLog = Join-Path $env:WORKSPACE "springboot-app.log"
+            if (Test-Path $appLog) {
+                Write-Host "Spring Boot log:"
+                Get-Content $appLog -Tail 80
             }
             '''
 
             archiveArtifacts artifacts: 'bdd-automation/reports/allure-results/**', allowEmptyArchive: true
             archiveArtifacts artifacts: 'bdd-automation/reports/allure-reports/**/*.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'springboot-app.log', allowEmptyArchive: true
         }
     }
 }
