@@ -85,4 +85,14 @@ public class PageController {
         model.addAttribute("username", username);
         return "profile";
     }
+
+    @GetMapping("/employees")
+    public String showEmployees(HttpSession session, Model model) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/login";
+        }
+        String username = (String) session.getAttribute("username");
+        model.addAttribute("username", username);
+        return "employees";
+    }
 }

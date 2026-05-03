@@ -45,3 +45,25 @@ build/
 *.iml
 app/target/
 automation/target/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Python virtual environment
+bdd-automation/venv/
+venv/
+
+# Behave / Allure reports
+bdd-automation/reports/allure-results/
+bdd-automation/reports/allure-reports/
+
+# pytest cache if used later
+.pytest_cache/
+
+# Coverage if used later
+.coverage
+htmlcov/
