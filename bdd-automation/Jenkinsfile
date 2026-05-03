@@ -1,0 +1,128 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_PORT = '8080'
+        APP_DIR = 'app'
+        AUTOMATION_DIR = 'bdd-automation'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify Tools') {
+            steps {
+                bat '''
+                java -version
+                mvn -version
+                python --version
+                allure --version
+                '''
+            }
+        }
+
+        stage('Start Spring Boot App') {
+            steps {
+                powershell '''
+                Write-Host "Starting Spring Boot app..."
+
+                $appPath = Join-Path $env:WORKSPACE $env:APP_DIR
+                $pidFile = Join-Path $env:WORKSPACE "springboot-app.pid"
+
+                $process = Start-Process -FilePath "mvn" `
+                    -ArgumentList "spring-boot:run" `
+                    -WorkingDirectory $appPath `
+                    -PassThru `
+                    -WindowStyle Hidden
+
+                $process.Id | Out-File $pidFile
+
+                Write-Host "Spring Boot PID: $($process.Id)"
+                Start-Sleep -Seconds 30
+                '''
+            }
+        }
+
+        stage('Check App Health') {
+            steps {
+                powershell '''
+                $url = "http://localhost:$env:APP_PORT/api/employees"
+
+                Write-Host "Checking app health at $url"
+
+                for ($i = 1; $i -le 12; $i++) {
+                    try {
+                        $response = Invoke-WebRequest -Uri $url -UseBasicParsing
+                        if ($response.StatusCode -eq 200) {
+                            Write-Host "Application is up."
+                            exit 0
+                        }
+                    } catch {
+                        Write-Host "Attempt $i: App not ready yet..."
+                        Start-Sleep -Seconds 5
+                    }
+                }
+
+                Write-Error "Application did not start successfully."
+                exit 1
+                '''
+            }
+        }
+
+        stage('Setup Python Environment') {
+            steps {
+                powershell '''
+                cd $env:AUTOMATION_DIR
+
+                if (Test-Path "venv") {
+                    Remove-Item -Recurse -Force "venv"
+                }
+
+                python -m venv venv
+                .\\venv\\Scripts\\python.exe -m pip install --upgrade pip
+                .\\venv\\Scripts\\pip.exe install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Behave Tests') {
+            steps {
+                powershell '''
+                cd $env:AUTOMATION_DIR
+
+                if (Test-Path "reports/allure-results") {
+                    Remove-Item -Recurse -Force "reports/allure-results"
+                }
+
+                New-Item -ItemType Directory -Force -Path "reports/allure-results"
+
+                .\\venv\\Scripts\\behave.exe -f allure_behave.formatter:AllureFormatter -o reports/allure-results
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            powershell '''
+            Write-Host "Stopping Spring Boot app..."
+
+            $pidFile = Join-Path $env:WORKSPACE "springboot-app.pid"
+
+            if (Test-Path $pidFile) {
+                $appPid = Get-Content $pidFile
+                Stop-Process -Id $appPid -Force -ErrorAction SilentlyContinue
+                Remove-Item $pidFile -Force
+            }
+            '''
+
+            archiveArtifacts artifacts: 'bdd-automation/reports/allure-results/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'bdd-automation/reports/allure-reports/**/*.html', allowEmptyArchive: true
+        }
+    }
+}
